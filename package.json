@@ -38,6 +38,9 @@
     "preview": "tsx src/preview.ts",
     "denylist-test": "tsx src/denylist-test.ts",
     "regenerate": "tsx src/regenerate.ts",
-    "status": "tsx src/status.ts"
+    "status": "tsx src/status.ts",
+    "test-dense": "tsx src/layout/test-dense.ts",
+    "test-ratelimit": "tsx src/pipeline/test-ratelimit.ts",
+    "test-fallback": "tsx src/pipeline/test-fallback.ts"
   }
 }

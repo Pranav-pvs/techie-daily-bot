@@ -8,11 +8,11 @@ function normalizeTitle(title: string): string {
     .trim();
 }
 
-function significantWords(title: string): Set<string> {
+export function significantWords(title: string): Set<string> {
   return new Set(normalizeTitle(title).split(" ").filter((w) => w.length > 2));
 }
 
-function jaccardSimilarity(a: Set<string>, b: Set<string>): number {
+export function jaccardSimilarity(a: Set<string>, b: Set<string>): number {
   const intersectionSize = [...a].filter((word) => b.has(word)).length;
   const unionSize = new Set([...a, ...b]).size;
   return unionSize === 0 ? 0 : intersectionSize / unionSize;

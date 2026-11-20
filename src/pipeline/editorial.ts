@@ -45,6 +45,14 @@ export interface EditorialResult {
   techByTheNumbers: StatOfTheDay[];
 }
 
+/** Why editorial selection produced no result. */
+export type EditorialFailure = "rate-limited" | "editorial-failed";
+
+export interface EditorialOutcome {
+  result: EditorialResult | null;
+  failure?: EditorialFailure; // set only when result is null
+}
+
 function buildPrompt(candidates: DedupedStory[]): string {
   const candidateList = candidates
     .slice(0, 30)
@@ -113,18 +121,22 @@ function attachImages(raw: RawSelectedStory, candidates: DedupedStory[]): Select
   return { ...raw, imageUrl: lookupImageUrl(raw.sourceLink, candidates) };
 }
 
-export async function runEditorialSelection(
+/**
+ * Runs editorial selection and reports why it failed, if it did.
+ * HTTP 429 from Groq is "rate-limited"; every other failure is "editorial-failed".
+ */
+export async function runEditorialSelectionDetailed(
   candidates: DedupedStory[]
-): Promise<EditorialResult | null> {
+): Promise<EditorialOutcome> {
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) {
     console.error("[editorial] GROQ_API_KEY is not set — check your .env file");
-    return null;
+    return { result: null, failure: "editorial-failed" };
   }
 
   if (candidates.length < 4) {
     console.warn(`[editorial] only ${candidates.length} candidates available — too few for a normal edition`);
-    return null;
+    return { result: null, failure: "editorial-failed" };
   }
 
   try {
@@ -145,14 +157,17 @@ export async function runEditorialSelection(
     if (!res.ok) {
       const text = await res.text();
       console.error(`[editorial] Groq API error: HTTP ${res.status} — ${text}`);
-      return null;
+      return {
+        result: null,
+        failure: res.status === 429 ? "rate-limited" : "editorial-failed",
+      };
     }
 
     const data = await res.json();
     const content = data.choices?.[0]?.message?.content;
     if (!content) {
       console.error("[editorial] no content in Groq response");
-      return null;
+      return { result: null, failure: "editorial-failed" };
     }
 
     const parsed = JSON.parse(content) as {
@@ -164,7 +179,7 @@ export async function runEditorialSelection(
 
     if (!parsed.lead || !Array.isArray(parsed.secondary) || parsed.secondary.length < 1) {
       console.error("[editorial] response JSON didn't match the expected shape");
-      return null;
+      return { result: null, failure: "editorial-failed" };
     }
 
     const lead = attachImages(parsed.lead, candidates);
@@ -183,14 +198,22 @@ export async function runEditorialSelection(
     }
 
     return {
-      lead,
-      secondary,
-      techExplained: parsed.techExplained,
-      techByTheNumbers: Array.isArray(parsed.techByTheNumbers) ? parsed.techByTheNumbers.slice(0, 3) : [],
+      result: {
+        lead,
+        secondary,
+        techExplained: parsed.techExplained,
+        techByTheNumbers: Array.isArray(parsed.techByTheNumbers) ? parsed.techByTheNumbers.slice(0, 3) : [],
+      },
     };
   } catch (err) {
     const reason = err instanceof Error ? err.message : String(err);
     console.error(`[editorial] failed: ${reason}`);
-    return null;
+    return { result: null, failure: "editorial-failed" };
   }
+}
+
+/** Unchanged interface for existing callers: returns the result or null. */
+export async function runEditorialSelection(candidates: DedupedStory[]): Promise<EditorialResult | null> {
+  const outcome = await runEditorialSelectionDetailed(candidates);
+  return outcome.result;
 }

@@ -3,7 +3,7 @@ import { LIMITS, truncate } from "../image/limits";
 import type { TemplateName } from "./select-layout";
 
 export const MIN_CANVAS_HEIGHT = 1100;
-export const MAX_CANVAS_HEIGHT = 1800;
+export const MAX_CANVAS_HEIGHT = 2100;
 
 const SAFETY_MARGIN = 0;
 const CONTENT_WIDTH = 984;

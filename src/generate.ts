@@ -3,6 +3,7 @@ import path from "node:path";
 import { buildEdition } from "./pipeline/build-edition";
 import { renderEdition } from "./image/render";
 import { appendRun } from "./pipeline/run-log";
+import { recordPublished } from "./pipeline/published-history";
 
 async function main() {
   const at = new Date().toISOString();
@@ -20,9 +21,11 @@ async function main() {
       process.exit(1);
     }
 
-    const { edition, source, template, canvasHeight } = built;
+    const { edition, source, fallbackReason, template, canvasHeight, published } = built;
     if (source === "backup") {
-      console.log("[generate] published as Educational Edition (no normal edition available today)");
+      console.log(
+        `[generate] published as Educational Edition (reason: ${fallbackReason ?? "unknown"})`
+      );
     }
 
     console.log("[generate] rendering newspaper image...");
@@ -34,11 +37,22 @@ async function main() {
     const outPath = path.join(outDir, `edition-${dateStamp}.png`);
     fs.writeFileSync(outPath, png);
 
+    // Recorded only after the image exists, and only for normal editions.
+    if (source === "normal") {
+      const history = recordPublished(published);
+      if (history.error) {
+        console.warn(`[history] not recorded: ${history.error}`);
+      } else {
+        console.log(`[history] recorded ${history.recorded} published stories`);
+      }
+    }
+
     appendRun({
       at,
       command: "generate",
       status: "success",
       source,
+      fallbackReason,
       template,
       canvasHeight,
       outputFile: outPath,

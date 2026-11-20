@@ -3,6 +3,7 @@ import path from "node:path";
 import { buildEdition } from "./pipeline/build-edition";
 import { renderEdition } from "./image/render";
 import { appendRun } from "./pipeline/run-log";
+import { recordPublished } from "./pipeline/published-history";
 
 function timeStamp(): string {
   // e.g. 2026-11-18T10-22-33 (colons are not allowed in Windows file names)
@@ -21,6 +22,12 @@ async function main() {
       process.exit(1);
     }
 
+    if (built.source === "backup") {
+      console.log(
+        `[regenerate] published as Educational Edition (reason: ${built.fallbackReason ?? "unknown"})`
+      );
+    }
+
     const png = await renderEdition(built.edition, undefined, built.template);
 
     const outDir = path.join(process.cwd(), "data/output");
@@ -31,11 +38,21 @@ async function main() {
     // "wx" fails if the file already exists, so a previous edition can never be overwritten.
     fs.writeFileSync(outPath, png, { flag: "wx" });
 
+    if (built.source === "normal") {
+      const history = recordPublished(built.published);
+      if (history.error) {
+        console.warn(`[history] not recorded: ${history.error}`);
+      } else {
+        console.log(`[history] recorded ${history.recorded} published stories`);
+      }
+    }
+
     appendRun({
       at,
       command: "regenerate",
       status: "success",
       source: built.source,
+      fallbackReason: built.fallbackReason,
       template: built.template,
       canvasHeight: built.canvasHeight,
       outputFile: outPath,

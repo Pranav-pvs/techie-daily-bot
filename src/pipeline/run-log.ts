@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import type { FallbackReason } from "./build-edition";
 
 const LOG_PATH = path.join(process.cwd(), "data/state/run-log.json");
 const MAX_ENTRIES = 200;
@@ -9,6 +10,7 @@ export interface RunEntry {
   command: "generate" | "preview" | "regenerate";
   status: "success" | "failed";
   source?: "normal" | "backup";
+  fallbackReason?: FallbackReason; // set only for educational-edition runs
   template?: string;
   canvasHeight?: number;
   outputFile?: string;

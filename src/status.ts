@@ -15,6 +15,12 @@ function todayStamp(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
+const REASON_TEXT: Record<string, string> = {
+  "rate-limited": "rate-limited by Groq (daily or per-minute limit)",
+  "editorial-failed": "editorial selection failed (see the terminal output for the error)",
+  "too-few-stories": "too few eligible stories",
+};
+
 function describeRun(entry: RunEntry | undefined): string[] {
   if (!entry) return ["  none recorded"];
 
@@ -28,6 +34,14 @@ function describeRun(entry: RunEntry | undefined): string[] {
   lines.push(
     `  edition: ${entry.source ?? "-"} | template: ${entry.template ?? "-"} | canvas: ${entry.canvasHeight ?? "-"}px`
   );
+
+  if (entry.source === "backup") {
+    const reason = entry.fallbackReason
+      ? REASON_TEXT[entry.fallbackReason] ?? entry.fallbackReason
+      : "not recorded (logged before fallback reasons were added)";
+    lines.push(`  fallback reason: ${reason}`);
+  }
+
   if (entry.outputFile) {
     const present = fs.existsSync(entry.outputFile);
     lines.push(`  file: ${path.basename(entry.outputFile)} (${present ? "present" : "MISSING"})`);
@@ -70,6 +84,7 @@ function main(): void {
   const runs = readRunLog();
   const lastSuccess = [...runs].reverse().find((r) => r.status === "success");
   const lastFailure = [...runs].reverse().find((r) => r.status === "failed");
+  const lastFallback = [...runs].reverse().find((r) => r.status === "success" && r.source === "backup");
 
   const report = [
     "TECHIE DAILY — STATUS (local checks only, nothing was changed)",
@@ -80,6 +95,9 @@ function main(): void {
     "",
     "LAST FAILED RUN:",
     ...describeRun(lastFailure),
+    "",
+    "LAST EDUCATIONAL-EDITION FALLBACK:",
+    ...describeRun(lastFallback),
     "",
     `RUN LOG: ${runs.length} entries (generate, preview, and regenerate are all logged).`,
     "",
