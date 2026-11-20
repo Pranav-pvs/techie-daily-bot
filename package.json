@@ -1,0 +1,43 @@
+{
+  "name": "techie-daily-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/node": "^26.6.6",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  },
+  "dependencies": {
+    "@resvg/resvg-js": "^2.6.2",
+    "better-sqlite3": "^13.0.3",
+    "dotenv": "^18.0.9",
+    "rss-parser": "^3.13.0",
+    "satori": "^0.63.2"
+  },
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "render:test": "tsx src/image/test-render.ts",
+    "render:themes": "tsx src/image/test-themes.ts",
+    "collect": "tsx src/collect.ts",
+    "shortlist": "tsx src/shortlist-test.ts",
+    "editorial": "tsx src/editorial-test.ts",
+    "list-models": "tsx src/list-models.ts",
+    "generate": "tsx src/generate.ts",
+    "backup-test": "tsx src/backup-test.ts",
+    "check-images": "tsx src/check-images.ts",
+    "debug-images": "tsx src/debug-source-images.ts",
+    "debug-image": "tsx src/debug-image-url.ts",
+    "check-resources": "tsx src/learning/check-resources.ts",
+    "test-templates": "tsx src/layout/test-templates.ts",
+    "preview": "tsx src/preview.ts",
+    "denylist-test": "tsx src/denylist-test.ts",
+    "regenerate": "tsx src/regenerate.ts",
+    "status": "tsx src/status.ts"
+  }
+}
