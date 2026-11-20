@@ -1,1 +1,22 @@
-[]
+[
+  {
+    "date": "2026-11-20",
+    "link": "https://www.wired.com/story/anthropics-record-breaking-ipo-highlights-the-ai-giants-worst-enemy-itself/",
+    "title": "Anthropic’s Record-Breaking IPO Highlights the AI Giant’s Worst Enemy—Itself"
+  },
+  {
+    "date": "2026-11-20",
+    "link": "https://www.theregister.com/security/2026/11/20/windows-11-passkey-bug-cries-failure-after-successful-sign-in/5311263",
+    "title": "Windows 11 passkey bug cries failure after successful sign-in"
+  },
+  {
+    "date": "2026-11-20",
+    "link": "https://dev.to/achyut_srivastava_2a77b5d/-training-a-57m-edge-model-sft-tool-calling-done-now-branching-into-3-rlvs-loops-1k24",
+    "title": "# Training a 57M Edge Model: SFT Tool-Calling Done, Now Branching into 3 RLVS Loops"
+  },
+  {
+    "date": "2026-11-20",
+    "link": "https://www.theregister.com/os-platforms/2026/11/20/ubuntu-core-desktop-targets-2804-debut-with-default-status-in-its-sights/5310837",
+    "title": "Ubuntu Core Desktop targets 28.04 debut, with default status in its sights"
+  }
+]
